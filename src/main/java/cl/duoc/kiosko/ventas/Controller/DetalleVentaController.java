@@ -22,7 +22,7 @@ public class DetalleVentaController {
     @Autowired
     private VentaService ventaService;
 
-    // La URL POST /api/v1/detalles-ventas/venta/{ventaId}
+    // La URL POST /api/v1/detalles_ventas/venta/{ventaId}
     //es debido a que es no pueden existir detalles sin ventas
     @PostMapping("/venta/{ventaId}")
     public ResponseEntity<?> agregarDetalleVenta(@PathVariable Long ventaId, @RequestBody DetalleVenta detalleVenta) {
