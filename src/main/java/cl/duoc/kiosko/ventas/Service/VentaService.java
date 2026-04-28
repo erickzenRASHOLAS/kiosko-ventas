@@ -3,6 +3,10 @@ package cl.duoc.kiosko.ventas.Service;
 import cl.duoc.kiosko.ventas.Model.DetalleVenta;
 import cl.duoc.kiosko.ventas.Model.Venta;
 import cl.duoc.kiosko.ventas.Repository.VentaRepository;
+import cl.duoc.kiosko.ventas.dto.DetalleVentaRequest;
+import cl.duoc.kiosko.ventas.dto.DetalleVentaResponseDTO;
+import cl.duoc.kiosko.ventas.dto.VentaRequestDTO;
+import cl.duoc.kiosko.ventas.dto.VentaResponseDTO;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,47 +19,77 @@ public class VentaService {
     @Autowired
     private VentaRepository ventaRepository;
 
-    public List<Venta> listVenta(){
-        return ventaRepository.findAll();
+    private VentaResponseDTO makeToVentaResponseDTO(Venta venta) {
+        // Convertimos la lista de Entidades DetalleVenta a lista de DetalleVentaResponseDTO
+        List<DetalleVentaResponseDTO> detallesDTO = venta.getDetalles().stream()
+                .map(detalle -> new DetalleVentaResponseDTO(
+                        detalle.getDetalle_venta_id(),
+                        detalle.getProducto_id(),
+                        detalle.getCantidad(),
+                        detalle.getSubtotal()
+                )).toList();
+        //Con la lista convertida ahora transformamos Venta a DTO
+        return new VentaResponseDTO(
+                venta.getVenta_id(),
+                venta.getFecha_hora_venta(),
+                venta.getTotal(),
+                detallesDTO
+        );
     }
+    public VentaResponseDTO saveVenta(VentaRequestDTO dto) {
+        Venta venta = new Venta();
+        venta.setFecha_hora_venta(dto.getFecha_hora_venta());
+        venta.setTotal(dto.getTotal());
 
-    //Justificar el metodo
-    public Venta findVentaId(Long id){
-        //El metodo que usa JPA devuelve un Optional el cual basicamente
-        //si NO encuentra lo que buscamos es null
-        // y si lo encuentra seria lo que buscamos (Objeto Ventas en este caso)
-        //Esto para mostar un 404 en vez 500 que seria lo correcto en este caso
-        return ventaRepository.findById(id).orElse(null);
-    }
-
-    public Venta saveVenta(Venta ven){
-        //Sirve para guardar y actualizar pero se debe utilizar de manera distinta
-        //Este codigo es para guardar una venta con todos los Detalles de Venta que tenga
-        if(ven.getDetalles()!= null){
-            //Recorremos los detalles con los que venga y le asignamos esta venta como su "dueño"
-            //Esto es asi porque es una relación uno a mucho
-            for (DetalleVenta detalle : ven.getDetalles()){
-                detalle.setVenta(ven);
+        if (dto.getDetalles() != null) {
+            for (DetalleVentaRequest detDTO : dto.getDetalles()) {
+                DetalleVenta detalle = new DetalleVenta();
+                detalle.setProducto_id(detDTO.getProductoId());
+                detalle.setCantidad(detDTO.getCantidad());
+                detalle.setSubtotal(detDTO.getSubtotal());
+                // Vinculación bidireccional
+                //esto se lo tuve que pedir a la ia
+                detalle.setVenta(venta);
+                venta.getDetalles().add(detalle);
             }
         }
-        //por la relación hecha con cascade all
-        return ventaRepository.save(ven);
+
+        Venta guardada = ventaRepository.save(venta);
+        return makeToVentaResponseDTO(guardada);
     }
 
-    public Venta updateVenta(Long id,Venta ven){
-        Venta venta_a_modificar= ventaRepository.findById(id).orElse(null);
-        if(venta_a_modificar!=null){
-            venta_a_modificar.setTotal(ven.getTotal());
-            venta_a_modificar.setFecha_hora_venta(ven.getFecha_hora_venta());
+    public List<VentaResponseDTO> listVenta(){
 
-            return ventaRepository.save(venta_a_modificar);
-        }else{
-            return null;
+        return ventaRepository.findAll().stream().map(this::makeToVentaResponseDTO).toList();
+    }
+
+    public VentaResponseDTO findVentaDTO(Long id) {
+        Venta venta = ventaRepository.findById(id).orElse(null);
+        //es lo mismo que hacer un if (debo utilizar mas esta forma)
+        return (venta != null) ? makeToVentaResponseDTO(venta) : null;
+    }
+
+
+
+    public VentaResponseDTO updateVenta(Long id, VentaRequestDTO dto) {
+        Venta ventaAModificar = ventaRepository.findById(id).orElse(null);
+        if (ventaAModificar != null) {
+            ventaAModificar.setTotal(dto.getTotal());
+            ventaAModificar.setFecha_hora_venta(dto.getFecha_hora_venta());
+            //se añaden solo los atributos que se quieran modificar
+            Venta actualizada = ventaRepository.save(ventaAModificar);
+            return makeToVentaResponseDTO(actualizada);
         }
+        return null;
     }
     /// nulos NO Retornan
-    public void deleteVenta(Long id){
-        ventaRepository.deleteById(id);
+    public void deleteVenta(Long id) {
+        if (ventaRepository.existsById(id)) {
+            ventaRepository.deleteById(id);
+        }else{
+            //si no hay nada expecion
+            throw new java.util.NoSuchElementException("No se puede eliminar. La venta con ID " + id + " no existe.");
+        }
     }
 
 

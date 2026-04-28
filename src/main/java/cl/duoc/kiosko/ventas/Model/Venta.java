@@ -22,10 +22,10 @@ public class Venta {
     @Column(name = "venta_id")
     private Long venta_id;
     @Column(name = "fecha_hora_venta")
-    @NotNull
+    @NotNull(message = "la fecha de venta no puede ser nulo")
     private Date fecha_hora_venta;
     @Column(name = "total")
-    @NotNull
+    @NotNull(message =  "el total no puede ser nulo")
     private int total;
     // Relación OneToMany hacia DetalleVenta con Cascada ALL
     //orphanRemoval sirve para que si eliminamos un detalleVenta de la DB este se elimine "fisicamente"

@@ -1,17 +1,16 @@
 package cl.duoc.kiosko.ventas.Controller;
 
-import cl.duoc.kiosko.ventas.Model.DetalleVenta;
-import cl.duoc.kiosko.ventas.Model.Venta;
 import cl.duoc.kiosko.ventas.Service.DetalleVentaService;
 import cl.duoc.kiosko.ventas.Service.VentaService;
+import cl.duoc.kiosko.ventas.dto.DetalleVentaRequest;
+import cl.duoc.kiosko.ventas.dto.DetalleVentaResponseDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.NoSuchElementException;
 
 @RestController
 @RequestMapping("/api/v1/detalles_ventas")
@@ -25,69 +24,50 @@ public class DetalleVentaController {
     // La URL POST /api/v1/detalles_ventas/venta/{ventaId}
     //es debido a que es no pueden existir detalles sin ventas
     @PostMapping("/venta/{ventaId}")
-    public ResponseEntity<?> agregarDetalleVenta(@PathVariable Long ventaId, @RequestBody DetalleVenta detalleVenta) {
-        // Buscamos la venta para asegurarnos de que existe
-        Venta venta = ventaService.findVentaId(ventaId);
-        if (venta == null) {
-            Map<String, String> respuesta = new HashMap<>();
-            respuesta.put("error", "No se puede crear el detalle. No existe la venta con el ID: " + ventaId);
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(respuesta);
-        }
-
-        // Vinculamos el detalle con la venta encontrada
-        // Esto se debe hacer porque el JSON no trae la venta por el @JsonIgnore
-        detalleVenta.setVenta(venta);
-        // Se guarda el Nuevo DetalleVenta
-        DetalleVenta nuevoDetalle = detalleVentaService.saveDetalleVenta(detalleVenta);
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(nuevoDetalle);
+    public ResponseEntity<DetalleVentaResponseDTO> agregarDetalleVenta(@PathVariable Long ventaId, @RequestBody DetalleVentaRequest detalleDTO) {
+        // El service se encarga de guardar los datos, aqui se los damos
+        DetalleVentaResponseDTO nuevoDetalle = detalleVentaService.saveDetalleVenta(ventaId, detalleDTO);
+        // Retornamos el DTO con estado Created
+        return new ResponseEntity<>(nuevoDetalle, HttpStatus.CREATED);
     }
     @GetMapping("")
-    public ResponseEntity<List<DetalleVenta>> listarDetallesVentas(){
-        List<DetalleVenta> detallesEncontrados= detalleVentaService.listDetalleVenta();
-        //Otra forma
-        //List<DetalleVenta> detallesEncontrados= detalleVentaService.listDetalleVenta();
-        // return ResponseEntity.ok(detallesEncontrados);
-        if(detallesEncontrados.isEmpty()){
+    public ResponseEntity<List<DetalleVentaResponseDTO>> listarDetallesVentas() {
+        // El service devuelve una lista de DTO
+        List<DetalleVentaResponseDTO> detalles = detalleVentaService.listDetalleVenta();
+        // Si no hay nada retorna un noContet
+        if (detalles.isEmpty()) {
             return ResponseEntity.noContent().build();
-        }else{
-            return ResponseEntity.ok(detallesEncontrados);
+        }else {
+            return ResponseEntity.ok(detalles);
         }
     }
     @GetMapping("/{id}")
-    public ResponseEntity<?> buscarDetalleVentaId(@PathVariable Long id){
-        DetalleVenta detalle= detalleVentaService.findDetalleVentaId(id);
-        if(detalle!=null){
-            return ResponseEntity.ok(detalle);
+    public ResponseEntity<DetalleVentaResponseDTO> buscarDetalleVentaId(@PathVariable Long id) {
+        DetalleVentaResponseDTO detalle = detalleVentaService.findDetalleVentaId(id);
+
+        // Si no lo encuentra lanzamos una expecion
+        if (detalle == null) {
+            throw new NoSuchElementException("No existe el detalle de venta con Id: " + id);
         }else{
-            Map<String, String> respuesta= new HashMap<>();
-            respuesta.put("mensaje","No existe el detalle de venta con Id: "+id);
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(respuesta);
+            return ResponseEntity.ok(detalle);
         }
     }
     @PutMapping("/{id}")
-    public ResponseEntity<?> actualizarDetalleVenta(@PathVariable Long id, @RequestBody DetalleVenta detalleVenta) {
-        // Buscamos el detalle existente en la BD
-        DetalleVenta existente = detalleVentaService.findDetalleVentaId(id);
-        if (existente != null) {
-            // Le pasamos la Venta original al objeto que llegó de Postman.
-            // Como detalleVenta trae la venta en null (por el @JsonIgnore),
-            // aquí le devolvemos su "dueño" original.
-            detalleVenta.setVenta(existente.getVenta());
+    public ResponseEntity<DetalleVentaResponseDTO> actualizarDetalleVenta(@PathVariable Long id, @RequestBody DetalleVentaRequest detalleDTO){
+        DetalleVentaResponseDTO actualizado = detalleVentaService.updateDetalleVenta(id, detalleDTO);
 
-            // LUego de esas validaciones realizamos la actualización
-            DetalleVenta actualizado = detalleVentaService.updateDetalleVenta(id, detalleVenta);
+        // Igual que antes si no existe, exepcion
+        if (actualizado == null) {
+            throw new NoSuchElementException("No se puede actualizar. El detalle con ID " + id + " no existe.");
+        }else {
             return ResponseEntity.ok(actualizado);
-        } else {
-            // Mensaje en caso de que no exista
-            Map<String, String> respuesta = new HashMap<>();
-            respuesta.put("mensaje", "No se puede actualizar. El detalle con ID " + id + " no existe.");
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(respuesta);
         }
     }
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> eliminarDetalleVentaId(@PathVariable Long id){
+    public ResponseEntity<Void> eliminarDetalleVentaId(@PathVariable Long id) {
+        //Si no existe salta la expeción
         detalleVentaService.deleteDetalleVenta(id);
+        //si NO salta la expecion se borra
         return ResponseEntity.noContent().build();
     }
 

@@ -12,12 +12,13 @@ import java.util.NoSuchElementException;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
     //NOT FOUND
-    @ExceptionHandler(Exception.class)
+    @ExceptionHandler(NoSuchElementException.class)
     public ResponseEntity<ExceptionDTO> handleNotFound(NoSuchElementException ex) {
         ExceptionDTO exceptionDTO= new ExceptionDTO(HttpStatus.NOT_FOUND,ex);
         return new ResponseEntity<>(exceptionDTO,HttpStatus.NOT_FOUND);
     }
     //BAD REQUEST
+    //CONFLICT (Ej: intentar borrar una venta que tiene detalles si no hay cascada)
     @ExceptionHandler(SQLIntegrityConstraintViolationException.class)
     public ResponseEntity<ExceptionDTO> handleConflict(SQLIntegrityConstraintViolationException ex) {
         ExceptionDTO exceptionDTO= new ExceptionDTO(HttpStatus.CONFLICT,ex);
