@@ -23,28 +23,28 @@ public class VentaService {
         // Convertimos la lista de Entidades DetalleVenta a lista de DetalleVentaResponseDTO
         List<DetalleVentaResponseDTO> detallesDTO = venta.getDetalles().stream()
                 .map(detalle -> new DetalleVentaResponseDTO(
-                        detalle.getDetalle_venta_id(),
-                        detalle.getProducto_id(),
+                        detalle.getDetalleVentaId(),
+                        detalle.getProductoId(),
                         detalle.getCantidad(),
                         detalle.getSubtotal()
                 )).toList();
         //Con la lista convertida ahora transformamos Venta a DTO
         return new VentaResponseDTO(
-                venta.getVenta_id(),
-                venta.getFecha_hora_venta(),
+                venta.getVentaId(),
+                venta.getFechaHoraVenta(),
                 venta.getTotal(),
                 detallesDTO
         );
     }
     public VentaResponseDTO saveVenta(VentaRequestDTO dto) {
         Venta venta = new Venta();
-        venta.setFecha_hora_venta(dto.getFecha_hora_venta());
+        venta.setFechaHoraVenta(dto.getFechaHoraVenta());
         venta.setTotal(dto.getTotal());
 
         if (dto.getDetalles() != null) {
             for (DetalleVentaRequest detDTO : dto.getDetalles()) {
                 DetalleVenta detalle = new DetalleVenta();
-                detalle.setProducto_id(detDTO.getProductoId());
+                detalle.setProductoId(detDTO.getProductoId());
                 detalle.setCantidad(detDTO.getCantidad());
                 detalle.setSubtotal(detDTO.getSubtotal());
                 // Vinculación bidireccional
@@ -66,7 +66,7 @@ public class VentaService {
     public VentaResponseDTO findVentaDTO(Long id) {
         Venta venta = ventaRepository.findById(id).orElse(null);
         //es lo mismo que hacer un if (debo utilizar mas esta forma)
-        return (venta != null) ? makeToVentaResponseDTO(venta) : null;
+        return (venta != null) ? makeToVentaResponseDTO(venta) : /*Despues del ":" es el else*/ null;
     }
 
 
@@ -75,7 +75,7 @@ public class VentaService {
         Venta ventaAModificar = ventaRepository.findById(id).orElse(null);
         if (ventaAModificar != null) {
             ventaAModificar.setTotal(dto.getTotal());
-            ventaAModificar.setFecha_hora_venta(dto.getFecha_hora_venta());
+            ventaAModificar.setFechaHoraVenta(dto.getFechaHoraVenta());
             //se añaden solo los atributos que se quieran modificar
             Venta actualizada = ventaRepository.save(ventaAModificar);
             return makeToVentaResponseDTO(actualizada);

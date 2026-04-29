@@ -14,7 +14,7 @@ public class VentaResponseDTO {
     //¿Aqui si se envia porque el postman necesita saber el número de venta creado?
     private Long id;
 
-    private Date fecha_hora_venta;
+    private Date fechaHoraVenta;
 
     private int total;
     // Permite ver los detalles de la venta asociados en JSON

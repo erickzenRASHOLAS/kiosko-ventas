@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class DetalleVentaResponseDTO {
-    private Long detalle_venta_id;
+    private Long detalleVentaId;
     private Long productoId;
     private int cantidad;
     private int subtotal;

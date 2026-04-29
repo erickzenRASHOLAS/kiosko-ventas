@@ -19,7 +19,7 @@ public class DetalleVenta {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "detalle_venta_id")
-    private Long detalle_venta_id;
+    private Long detalleVentaId;
     // Relación ManyToOne hacia Venta (Esta es la FK)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "venta_id", nullable = false)
@@ -28,7 +28,7 @@ public class DetalleVenta {
     private Venta venta;
     @Column(name = "producto_id")
     @NotNull
-    private Long producto_id;
+    private Long productoId;
     @Column(name="cantidad")
     @NotNull
     private int cantidad;

@@ -23,8 +23,8 @@ public class DetalleVentaService {
     //CREA lo que ve el cliente
     private DetalleVentaResponseDTO makeToDetalleResponseDTO(DetalleVenta detalle) {
         return new DetalleVentaResponseDTO(
-                detalle.getDetalle_venta_id(),
-                detalle.getProducto_id(),
+                detalle.getDetalleVentaId(),
+                detalle.getProductoId(),
                 detalle.getCantidad(),
                 detalle.getSubtotal()
         );
@@ -36,7 +36,7 @@ public class DetalleVentaService {
 
         // Conversión de la lista a dto
         return entidades.stream()
-                .map(this::makeToDetalleResponseDTO) // Se usa el metodo creado antes
+                .map(this::makeToDetalleResponseDTO) // Se usa el metodo creado antes para transformar
                 .collect(Collectors.toList());
     }
 
@@ -59,7 +59,7 @@ public class DetalleVentaService {
         Venta venta = ventaRepository.findById(id).orElseThrow(() -> new NoSuchElementException("No existe la venta con el ID: " + id));
 
         DetalleVenta detalle = new DetalleVenta();
-        detalle.setProducto_id(dto.getProductoId());
+        detalle.setProductoId(dto.getProductoId());
         detalle.setCantidad(dto.getCantidad());
         detalle.setSubtotal(dto.getSubtotal());
         detalle.setVenta(venta);
@@ -74,7 +74,7 @@ public class DetalleVentaService {
 
         if (detalleAModificar != null) {
             // Actualizamos solo los campos que vienen en el DTO
-            detalleAModificar.setProducto_id(dto.getProductoId());
+            detalleAModificar.setProductoId(dto.getProductoId());
             detalleAModificar.setCantidad(dto.getCantidad());
             detalleAModificar.setSubtotal(dto.getSubtotal());
             //no se usa venta porque el dueño es el mimso

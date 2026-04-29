@@ -20,10 +20,10 @@ public class Venta {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "venta_id")
-    private Long venta_id;
+    private Long ventaId;
     @Column(name = "fecha_hora_venta")
     @NotNull(message = "la fecha de venta no puede ser nulo")
-    private Date fecha_hora_venta;
+    private Date fechaHoraVenta;
     @Column(name = "total")
     @NotNull(message =  "el total no puede ser nulo")
     private int total;
