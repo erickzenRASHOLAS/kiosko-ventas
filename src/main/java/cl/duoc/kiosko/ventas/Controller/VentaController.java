@@ -15,7 +15,7 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 
 @RestController
-@RequestMapping("/api/v1/ventas")
+@RequestMapping("/ventas")
 public class VentaController {
     @Autowired
     private VentaService ventaService;

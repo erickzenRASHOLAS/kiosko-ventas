@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <!-- Include base Spring Boot defaults -->
+    <include resource="org/springframework/boot/logging/logback/defaults.xml" />
+    <include resource="org/springframework/boot/logging/logback/console-appender.xml" />
+
+    <root level="INFO">
+        <appender-ref ref="CONSOLE" />
+    </root>
+
+    <!-- Example: Enable DEBUG logging for your package in dev profile -->
+    <springProfile name="dev">
+        <logger name="cl.duoc.kiosco" level="DEBUG"/>
+        <appender name="JSON_FILE" class="ch.qos.logback.core.FileAppender">
+            <file>app.json</file>
+            <encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
+        </appender>
+    </springProfile>
+</configuration>

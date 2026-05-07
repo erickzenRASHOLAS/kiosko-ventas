@@ -6,6 +6,7 @@ import cl.duoc.kiosko.ventas.Repository.DetalleVentaRepository;
 import cl.duoc.kiosko.ventas.Repository.VentaRepository;
 import cl.duoc.kiosko.ventas.dto.DetalleVentaRequest;
 import cl.duoc.kiosko.ventas.dto.DetalleVentaResponseDTO;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -14,6 +15,7 @@ import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 public class DetalleVentaService {
     @Autowired
     private DetalleVentaRepository detalleVentaRepository;
@@ -22,6 +24,7 @@ public class DetalleVentaService {
 
     //CREA lo que ve el cliente
     private DetalleVentaResponseDTO makeToDetalleResponseDTO(DetalleVenta detalle) {
+        log.error("Se formatea el DetalleVenta a DTO");
         return new DetalleVentaResponseDTO(
                 detalle.getDetalleVentaId(),
                 detalle.getProductoId(),
@@ -29,32 +32,11 @@ public class DetalleVentaService {
                 detalle.getSubtotal()
         );
     }
-
-    public List<DetalleVentaResponseDTO> listDetalleVenta() {
-        // Buscamos todas las entidades
-        List<DetalleVenta> entidades = detalleVentaRepository.findAll();
-
-        // Conversión de la lista a dto
-        return entidades.stream()
-                .map(this::makeToDetalleResponseDTO) // Se usa el metodo creado antes para transformar
-                .collect(Collectors.toList());
-    }
-
-
-    public DetalleVentaResponseDTO findDetalleVentaId(Long id) {
-        DetalleVenta detalle = detalleVentaRepository.findById(id).orElse(null);
-        return (detalle != null) ? makeToDetalleResponseDTO(detalle) : null;
-        //es lo mismo que if (detalle != null) {
-        //    return makeToDetalleResponseDTO(detalle); // Si existe el detalle lo convierte a DTO y lo retorna
-        //} else {
-        //    return null; // Si no existe devuelve null
-        //}
-    }
-
     // Guardar/Crear Detalle (Recibe Request de venta)
     //
     public DetalleVentaResponseDTO saveDetalleVenta(Long id, DetalleVentaRequest dto) {
-        //una Validación de si existe mas corta
+        log.error("Se inicia la creación de DetalleVenta a DTO");
+        //una Validación de si existe más corta
         //esta está hecha con ia para probrar como funciona
         Venta venta = ventaRepository.findById(id).orElseThrow(() -> new NoSuchElementException("No existe la venta con el ID: " + id));
 
@@ -68,7 +50,33 @@ public class DetalleVentaService {
         return makeToDetalleResponseDTO(guardado);
     }
 
+    public List<DetalleVentaResponseDTO> listDetalleVenta() {
+        // Buscamos todas las entidades
+        log.error("Se listan todos los detalleVentas");
+        List<DetalleVenta> entidades = detalleVentaRepository.findAll();
+
+        // Conversión de la lista a dto
+        return entidades.stream()
+                .map(this::makeToDetalleResponseDTO) // Se usa el metodo creado antes para transformar
+                .collect(Collectors.toList());
+    }
+
+
+    public DetalleVentaResponseDTO findDetalleVentaId(Long id) {
+        log.error("Se busca la venta de ID {}", id);
+        DetalleVenta detalle = detalleVentaRepository.findById(id).orElse(null);
+        return (detalle != null) ? makeToDetalleResponseDTO(detalle) : null;
+        //es lo mismo que if (detalle != null) {
+        //    return makeToDetalleResponseDTO(detalle); // Si existe el detalle lo convierte a DTO y lo retorna
+        //} else {
+        //    return null; // Si no existe devuelve null
+        //}
+    }
+
+
+
     public DetalleVentaResponseDTO updateDetalleVenta(Long id, DetalleVentaRequest dto) {
+        log.error("Se actualiza el detalleVenta con ID {}", id);
         // Buscamos la entidad original en la base de datos que queremos cambiar
         DetalleVenta detalleAModificar = detalleVentaRepository.findById(id).orElse(null);
 
@@ -87,6 +95,7 @@ public class DetalleVentaService {
     }
 
     public void deleteDetalleVenta(Long id) {
+        log.error("Se elimina el detalleVenta con ID {}", id);
         // verifica que exista algo que borrar
         if (detalleVentaRepository.existsById(id)) {
 

@@ -8,6 +8,7 @@ import cl.duoc.kiosko.ventas.dto.DetalleVentaResponseDTO;
 import cl.duoc.kiosko.ventas.dto.VentaRequestDTO;
 import cl.duoc.kiosko.ventas.dto.VentaResponseDTO;
 import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,11 +16,13 @@ import java.util.List;
 
 @Service
 @Transactional
+@Slf4j
 public class VentaService {
     @Autowired
     private VentaRepository ventaRepository;
 
     private VentaResponseDTO makeToVentaResponseDTO(Venta venta) {
+        log.error("Se Formatea de Venta a DTO");
         // Convertimos la lista de Entidades DetalleVenta a lista de DetalleVentaResponseDTO
         List<DetalleVentaResponseDTO> detallesDTO = venta.getDetalles().stream()
                 .map(detalle -> new DetalleVentaResponseDTO(
@@ -37,6 +40,7 @@ public class VentaService {
         );
     }
     public VentaResponseDTO saveVenta(VentaRequestDTO dto) {
+        log.error("Se Guarda de Venta a DTO");
         Venta venta = new Venta();
         venta.setFechaHoraVenta(dto.getFechaHoraVenta());
         venta.setTotal(dto.getTotal());
@@ -59,19 +63,22 @@ public class VentaService {
     }
 
     public List<VentaResponseDTO> listVenta(){
+        log.error("Se Listan todas los Ventas");
 
         return ventaRepository.findAll().stream().map(this::makeToVentaResponseDTO).toList();
     }
 
     public VentaResponseDTO findVentaDTO(Long id) {
+        log.error("Se busca la Venta de ID {}", id);
         Venta venta = ventaRepository.findById(id).orElse(null);
-        //es lo mismo que hacer un if (debo utilizar mas esta forma)
+        //es lo mismo que hacer un if (debo utilizar más esta forma)
         return (venta != null) ? makeToVentaResponseDTO(venta) : /*Despues del ":" es el else*/ null;
     }
 
 
 
     public VentaResponseDTO updateVenta(Long id, VentaRequestDTO dto) {
+        log.error("Se actualiza la Venta de ID {}", id);
         Venta ventaAModificar = ventaRepository.findById(id).orElse(null);
         if (ventaAModificar != null) {
             ventaAModificar.setTotal(dto.getTotal());
@@ -84,6 +91,7 @@ public class VentaService {
     }
     /// nulos NO Retornan
     public void deleteVenta(Long id) {
+        log.error("Se elimina la Venta de ID {}", id);
         if (ventaRepository.existsById(id)) {
             ventaRepository.deleteById(id);
         }else{
