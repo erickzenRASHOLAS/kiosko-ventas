@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class DetalleVentaRequest {
+public class DetalleVentaRequestDTO {
     //NO VA ID PORQUE EL USUARIO NO PONE ID AL CREARLO
     @NotNull(message = "Debe existir un id producto")
     private Long productoId;

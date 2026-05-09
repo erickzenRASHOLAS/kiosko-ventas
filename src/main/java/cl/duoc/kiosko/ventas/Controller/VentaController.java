@@ -4,6 +4,7 @@ import cl.duoc.kiosko.ventas.Model.Venta;
 import cl.duoc.kiosko.ventas.Service.VentaService;
 import cl.duoc.kiosko.ventas.dto.VentaRequestDTO;
 import cl.duoc.kiosko.ventas.dto.VentaResponseDTO;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,7 +22,7 @@ public class VentaController {
     private VentaService ventaService;
 
     @PostMapping("")
-    public ResponseEntity<VentaResponseDTO> agregarVenta(@RequestBody VentaRequestDTO ventaDTO) {
+    public ResponseEntity<VentaResponseDTO> agregarVenta(@Valid @RequestBody VentaRequestDTO ventaDTO) {
         // El service ahora recibe un RequestDTO y devuelve un ResponseDTO
         VentaResponseDTO nuevaVenta = ventaService.saveVenta(ventaDTO);
         return new ResponseEntity<>(nuevaVenta, HttpStatus.CREATED);
@@ -52,7 +53,7 @@ public class VentaController {
 
     // Actualiza la venta
     @PutMapping("/{id}")
-    public ResponseEntity<VentaResponseDTO> actualizarVenta(@PathVariable Long id, @RequestBody VentaRequestDTO ventaDTO) {
+    public ResponseEntity<VentaResponseDTO> actualizarVenta(@PathVariable Long id, @Valid @RequestBody VentaRequestDTO ventaDTO) {
         VentaResponseDTO actualizada = ventaService.updateVenta(id, ventaDTO);
         if (actualizada == null) {
             throw new NoSuchElementException("No se puede actualizar. Venta no encontrada con ID: " + id);

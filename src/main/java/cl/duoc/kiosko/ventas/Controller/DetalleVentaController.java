@@ -2,8 +2,9 @@ package cl.duoc.kiosko.ventas.Controller;
 
 import cl.duoc.kiosko.ventas.Service.DetalleVentaService;
 import cl.duoc.kiosko.ventas.Service.VentaService;
-import cl.duoc.kiosko.ventas.dto.DetalleVentaRequest;
+import cl.duoc.kiosko.ventas.dto.DetalleVentaRequestDTO;
 import cl.duoc.kiosko.ventas.dto.DetalleVentaResponseDTO;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,7 +25,7 @@ public class DetalleVentaController {
     // La URL POST /api/v1/detalles_ventas/venta/{ventaId}
     //es debido a que es no pueden existir detalles sin ventas
     @PostMapping("/venta/{ventaId}")
-    public ResponseEntity<DetalleVentaResponseDTO> agregarDetalleVenta(@PathVariable Long ventaId, @RequestBody DetalleVentaRequest detalleDTO) {
+    public ResponseEntity<DetalleVentaResponseDTO> agregarDetalleVenta(@PathVariable Long ventaId,@Valid @RequestBody DetalleVentaRequestDTO detalleDTO) {
         // El service se encarga de guardar los datos, aqui se los damos
         DetalleVentaResponseDTO nuevoDetalle = detalleVentaService.saveDetalleVenta(ventaId, detalleDTO);
         // Retornamos el DTO con estado Created
@@ -53,7 +54,7 @@ public class DetalleVentaController {
         }
     }
     @PutMapping("/{id}")
-    public ResponseEntity<DetalleVentaResponseDTO> actualizarDetalleVenta(@PathVariable Long id, @RequestBody DetalleVentaRequest detalleDTO){
+    public ResponseEntity<DetalleVentaResponseDTO> actualizarDetalleVenta(@PathVariable Long id,@Valid @RequestBody DetalleVentaRequestDTO detalleDTO){
         DetalleVentaResponseDTO actualizado = detalleVentaService.updateDetalleVenta(id, detalleDTO);
 
         // Igual que antes si no existe, exepcion

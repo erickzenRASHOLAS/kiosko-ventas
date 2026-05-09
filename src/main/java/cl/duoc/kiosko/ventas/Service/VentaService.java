@@ -3,7 +3,7 @@ package cl.duoc.kiosko.ventas.Service;
 import cl.duoc.kiosko.ventas.Model.DetalleVenta;
 import cl.duoc.kiosko.ventas.Model.Venta;
 import cl.duoc.kiosko.ventas.Repository.VentaRepository;
-import cl.duoc.kiosko.ventas.dto.DetalleVentaRequest;
+import cl.duoc.kiosko.ventas.dto.DetalleVentaRequestDTO;
 import cl.duoc.kiosko.ventas.dto.DetalleVentaResponseDTO;
 import cl.duoc.kiosko.ventas.dto.VentaRequestDTO;
 import cl.duoc.kiosko.ventas.dto.VentaResponseDTO;
@@ -46,7 +46,7 @@ public class VentaService {
         venta.setTotal(dto.getTotal());
 
         if (dto.getDetalles() != null) {
-            for (DetalleVentaRequest detDTO : dto.getDetalles()) {
+            for (DetalleVentaRequestDTO detDTO : dto.getDetalles()) {
                 DetalleVenta detalle = new DetalleVenta();
                 detalle.setProductoId(detDTO.getProductoId());
                 detalle.setCantidad(detDTO.getCantidad());

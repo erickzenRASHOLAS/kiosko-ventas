@@ -1,5 +1,6 @@
 package cl.duoc.kiosko.ventas.dto;
 
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -18,11 +19,11 @@ public class VentaRequestDTO {
     @NotNull(message = "la fecha y hora no pueden ser nulas")
     private Date fechaHoraVenta;
     @NotNull(message = "el total no puede ser nulo")
+    @Min(value = 0,message = "el total no puede ser negativo")
     private int total;
-
     //Permite que puedan mandar una lista de detalles
     //Empty porque es una lista, blank no funciona
     @NotEmpty(message = "la venta debe tener al menos un detalle/producto")
-    private List<DetalleVentaRequest> detalles;
+    private List<DetalleVentaRequestDTO> detalles;
 
 }
