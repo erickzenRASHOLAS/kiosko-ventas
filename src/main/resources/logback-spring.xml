@@ -10,7 +10,7 @@
 
     <!-- Example: Enable DEBUG logging for your package in dev profile -->
     <springProfile name="dev">
-        <logger name="cl.duoc.kiosco" level="DEBUG"/>
+        <logger name="cl.duoc.kiosko" level="DEBUG"/>
         <appender name="JSON_FILE" class="ch.qos.logback.core.FileAppender">
             <file>app.json</file>
             <encoder class="net.logstash.logback.encoder.LogstashEncoder"/>

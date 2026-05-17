@@ -8,6 +8,7 @@ import cl.duoc.kiosko.ventas.dto.DetalleVentaResponseDTO;
 import cl.duoc.kiosko.ventas.dto.VentaRequestDTO;
 import cl.duoc.kiosko.ventas.dto.VentaResponseDTO;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,9 +18,10 @@ import java.util.List;
 @Service
 @Transactional
 @Slf4j
+@RequiredArgsConstructor
 public class VentaService {
-    @Autowired
-    private VentaRepository ventaRepository;
+
+    private final VentaRepository ventaRepository;
 
     private VentaResponseDTO makeToVentaResponseDTO(Venta venta) {
         log.error("Se Formatea de Venta a DTO");
