@@ -5,6 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.NoSuchElementException;
@@ -24,6 +25,17 @@ public class GlobalExceptionHandler {
         ExceptionDTO exceptionDTO= new ExceptionDTO(HttpStatus.CONFLICT,ex);
         return new ResponseEntity<>(exceptionDTO,HttpStatus.CONFLICT);
     }
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ExceptionDTO> handleMethodArgumentTypeMismatch(MethodArgumentTypeMismatchException ex){
+        //si el parámetro a evaluar es parte de la configuración de springdoc, ignóralo
+        if(ex.getParameter()!= null && ex.getParameter().getParameterType().getName().contains("springdoc") ){
+            return null;
+        }
+        ExceptionDTO exceptionDTO= new ExceptionDTO(HttpStatus.INTERNAL_SERVER_ERROR,ex);
+        return new ResponseEntity<>(exceptionDTO,HttpStatus.INTERNAL_SERVER_ERROR);
+
+    }
+
     //Es un catch all
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ExceptionDTO> handleAllException(Exception ex) {
