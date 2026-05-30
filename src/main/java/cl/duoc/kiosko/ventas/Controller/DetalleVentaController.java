@@ -17,7 +17,7 @@ import java.util.NoSuchElementException;
 
 @RestController
 @RequestMapping("/v1/detalles_ventas")
-@Tag(name="Detalles de Ventas", description = "Operaciones relacionadas con ventas")
+@Tag(name="Detalles de Ventas", description = "Operaciones relacionadas con  el detalle de las ventas")
 public class DetalleVentaController {
     @Autowired
     private DetalleVentaService detalleVentaService;
@@ -28,7 +28,7 @@ public class DetalleVentaController {
     // La URL POST /api/v1/detalles_ventas/venta/{ventaId}
     //es debido a que es no pueden existir detalles sin ventas
     @PostMapping("/venta/{ventaId}")
-    @Operation(summary = "Agregar un detalle venta", description = "Agrega/guarda un detalle de venta")
+    @Operation(summary = "Agregar un detalle venta", description = "Agrega/guarda un detalle de venta, debe existir una venta a la cual esta pueda ser añadida (Obligatorio por la relación en la base de datos)")
     public ResponseEntity<DetalleVentaResponseDTO> agregarDetalleVenta(@PathVariable Long ventaId,@Valid @RequestBody DetalleVentaRequestDTO detalleDTO) {
         // El service se encarga de guardar los datos, aqui se los damos
         DetalleVentaResponseDTO nuevoDetalle = detalleVentaService.saveDetalleVenta(ventaId, detalleDTO);
@@ -36,7 +36,7 @@ public class DetalleVentaController {
         return new ResponseEntity<>(nuevoDetalle, HttpStatus.CREATED);
     }
     @GetMapping("")
-    @Operation(summary = "Listar todos los detalles de ventas", description = "Lista/Muestra todos los detalles de las distintas ventas")
+    @Operation(summary = "Listar todos los detalles de ventas", description = "Lista/Muestra todos los detalles de todos los detalles de ventas existentes")
     public ResponseEntity<List<DetalleVentaResponseDTO>> listarDetallesVentas() {
         // El service devuelve una lista de DTO
         List<DetalleVentaResponseDTO> detalles = detalleVentaService.listDetalleVenta();
@@ -48,7 +48,7 @@ public class DetalleVentaController {
         }
     }
     @GetMapping("/{id}")
-    @Operation(summary = "Buscar detalle venta por ID", description = "Busca el detalle de una venta por el id del detalle")
+    @Operation(summary = "Buscar detalle venta por ID", description = "Busca el detalle de una venta por el id del detalle venta (NO por el de la venta)")
     public ResponseEntity<DetalleVentaResponseDTO> buscarDetalleVentaId(@PathVariable Long id) {
         DetalleVentaResponseDTO detalle = detalleVentaService.findDetalleVentaId(id);
 
@@ -72,7 +72,7 @@ public class DetalleVentaController {
         }
     }
     @DeleteMapping("/{id}")
-    @Operation(summary = "", description = "")
+    @Operation(summary = "Eliminar un detalle venta de venta", description = "Elimina el detalle de una venta buscándola por su ID (NO por el de la venta)")
     public ResponseEntity<Void> eliminarDetalleVentaId(@PathVariable Long id) {
         //Si no existe salta la expeción
         detalleVentaService.deleteDetalleVenta(id);
