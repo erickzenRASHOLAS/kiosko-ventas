@@ -8,14 +8,17 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.Link;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import cl.duoc.kiosko.ventas.Assembler.VentaModelAssembler;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
+import java.util.*;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
 @RequestMapping("/v1/ventas")
@@ -24,23 +27,33 @@ public class VentaController {
     @Autowired
     private VentaService ventaService;
 
+    @Autowired
+    private VentaModelAssembler assembler;
+
     @PostMapping("")
     @Operation(summary = "Agregar/Crear una venta ", description = "Agrega/guarda una venta (debe tener un detalle minimo debido al modelo de base de datos creado)")
     public ResponseEntity<VentaResponseDTO> agregarVenta(@Valid @RequestBody VentaRequestDTO ventaDTO) {
         // El service ahora recibe un RequestDTO y devuelve un ResponseDTO
         VentaResponseDTO nuevaVenta = ventaService.saveVenta(ventaDTO);
-        return new ResponseEntity<>(nuevaVenta, HttpStatus.CREATED);
+        //se aplica el assembler
+        return new ResponseEntity<>(assembler.toModel(nuevaVenta), HttpStatus.CREATED);
     }
 
     // Listado de todas las ventas
     @GetMapping("")
     @Operation(summary = "Listar Ventas", description = "Busca y muestra todas las ventas existentes")
-    public ResponseEntity<List<VentaResponseDTO>> listarVentas() {
+    public ResponseEntity<CollectionModel<VentaResponseDTO>> listarVentas() {
         List<VentaResponseDTO> ventas = ventaService.listVenta();
+
         if (ventas.isEmpty()) {
             return ResponseEntity.noContent().build();
         }else {
-            return ResponseEntity.ok(ventas);
+            List<VentaResponseDTO> ventasConLinks = ventas.stream()
+                    .map(assembler::toModel) // Esto sale en la guía 3.1.4
+                    .toList();
+            Link linkColeccion = linkTo(methodOn(VentaController.class).listarVentas()).withSelfRel();
+
+            return ResponseEntity.ok(CollectionModel.of(ventasConLinks, linkColeccion));
         }
     }
 
@@ -54,7 +67,7 @@ public class VentaController {
             // Ahora no es necesario el map para el mensaje gracias al global handler expection
             throw new NoSuchElementException("Venta no encontrada | Id buscado: " + id);
         }
-        return ResponseEntity.ok(venta);
+        return ResponseEntity.ok(assembler.toModel(venta));
     }
 
     // Actualiza la venta
@@ -65,7 +78,8 @@ public class VentaController {
         if (actualizada == null) {
             throw new NoSuchElementException("No se puede actualizar. Venta no encontrada con ID: " + id);
         }else{
-            return ResponseEntity.ok(actualizada);
+            //se aplica el assembler
+            return ResponseEntity.ok(assembler.toModel(actualizada));
         }
     }
 

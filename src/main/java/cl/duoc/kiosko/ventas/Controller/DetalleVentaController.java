@@ -1,5 +1,6 @@
 package cl.duoc.kiosko.ventas.Controller;
 
+import cl.duoc.kiosko.ventas.Assembler.DetalleVentaModelAssembler;
 import cl.duoc.kiosko.ventas.Service.DetalleVentaService;
 import cl.duoc.kiosko.ventas.Service.VentaService;
 import cl.duoc.kiosko.ventas.dto.DetalleVentaRequestDTO;
@@ -8,9 +9,13 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.Link;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -24,6 +29,9 @@ public class DetalleVentaController {
     //NECESARIO PARA ENCONTRAR LA VENTA
     @Autowired
     private VentaService ventaService;
+    //necesario para HATEOAS
+    @Autowired
+    private DetalleVentaModelAssembler assembler;
 
     // La URL POST /api/v1/detalles_ventas/venta/{ventaId}
     //es debido a que es no pueden existir detalles sin ventas
@@ -32,19 +40,25 @@ public class DetalleVentaController {
     public ResponseEntity<DetalleVentaResponseDTO> agregarDetalleVenta(@PathVariable Long ventaId,@Valid @RequestBody DetalleVentaRequestDTO detalleDTO) {
         // El service se encarga de guardar los datos, aqui se los damos
         DetalleVentaResponseDTO nuevoDetalle = detalleVentaService.saveDetalleVenta(ventaId, detalleDTO);
-        // Retornamos el DTO con estado Created
-        return new ResponseEntity<>(nuevoDetalle, HttpStatus.CREATED);
+        // Retornamos el DTO con estado Created y HATEOAS
+        return new ResponseEntity<>(assembler.toModel(nuevoDetalle), HttpStatus.CREATED);
     }
     @GetMapping("")
     @Operation(summary = "Listar todos los detalles de ventas", description = "Lista/Muestra todos los detalles de todos los detalles de ventas existentes")
-    public ResponseEntity<List<DetalleVentaResponseDTO>> listarDetallesVentas() {
+    public ResponseEntity<CollectionModel<DetalleVentaResponseDTO>> listarDetallesVentas() {
         // El service devuelve una lista de DTO
         List<DetalleVentaResponseDTO> detalles = detalleVentaService.listDetalleVenta();
         // Si no hay nada retorna un noContet
         if (detalles.isEmpty()) {
             return ResponseEntity.noContent().build();
         }else {
-            return ResponseEntity.ok(detalles);
+            List<DetalleVentaResponseDTO> detallesConLinks = detalles.stream()
+                    .map(assembler::toModel)//Sale en la guia
+                    .toList();
+
+            Link linkColeccion = linkTo(methodOn(DetalleVentaController.class).listarDetallesVentas()).withSelfRel();
+
+            return ResponseEntity.ok(CollectionModel.of(detallesConLinks, linkColeccion));
         }
     }
     @GetMapping("/{id}")
@@ -56,7 +70,8 @@ public class DetalleVentaController {
         if (detalle == null) {
             throw new NoSuchElementException("No existe el detalle de venta con Id: " + id);
         }else{
-            return ResponseEntity.ok(detalle);
+            //se aplica el assembler
+            return ResponseEntity.ok(assembler.toModel(detalle));
         }
     }
     @PutMapping("/{id}")
@@ -68,7 +83,8 @@ public class DetalleVentaController {
         if (actualizado == null) {
             throw new NoSuchElementException("No se puede actualizar. El detalle con ID " + id + " no existe.");
         }else {
-            return ResponseEntity.ok(actualizado);
+            //se aplica el assembler
+            return ResponseEntity.ok(assembler.toModel(actualizado));
         }
     }
     @DeleteMapping("/{id}")

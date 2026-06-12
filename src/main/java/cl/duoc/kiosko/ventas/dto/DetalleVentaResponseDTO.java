@@ -4,12 +4,15 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import org.springframework.hateoas.RepresentationModel;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class DetalleVentaResponseDTO {
+@EqualsAndHashCode(callSuper = true)
+public class DetalleVentaResponseDTO extends RepresentationModel<DetalleVentaResponseDTO> {
     @NotNull
     private Long detalleVentaId;
     @NotNull
