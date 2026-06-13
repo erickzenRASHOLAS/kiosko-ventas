@@ -8,8 +8,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -34,8 +33,8 @@ class VentaControllerTest {
     @MockitoBean
     private VentaModelAssembler assembler; // Burlamos HATEOAS
 
-    @Autowired
-    private ObjectMapper objectMapper; // Transforma objetos Java a JSON
+    // Se instancia directo porque el slice @WebMvcTest de Spring Boot 4 no expone el bean ObjectMapper
+    private final ObjectMapper objectMapper = new ObjectMapper(); // Transforma objetos Java a JSON
 
     @Test
     @DisplayName("Debe buscar una venta por ID y devolver Status 200 OK")
@@ -53,7 +52,7 @@ class VentaControllerTest {
         // 2 & 3. WHEN / ACT & THEN / ASSERT (Actuar y Afirmar)
         mockMvc.perform(get("/v1/ventas/1")) // Hacemos GET a la URL
                 .andExpect(status().isOk()) // Esperamos un HTTP 200
-                .andExpect(jsonPath("$.ventaId").value(1)) // Validamos que el JSON devuelva ID 1
+                .andExpect(jsonPath("$.id").value(1)) // Validamos que el JSON devuelva ID 1 (el campo del DTO se llama "id", no "ventaId")
                 .andExpect(jsonPath("$.total").value(5000)); // Validamos que el JSON devuelva Total 5000
     }
 
@@ -62,8 +61,11 @@ class VentaControllerTest {
     void testAgregarVenta() throws Exception {
         // 1. GIVEN / ARRANGE
         // Creamos lo que el usuario enviaría (Request)
+        // OJO: debe pasar las validaciones @Valid del controller (fecha no nula y al menos 1 detalle)
         VentaRequestDTO requestBody = new VentaRequestDTO();
         requestBody.setTotal(10000);
+        requestBody.setFechaHoraVenta(new java.util.Date());
+        requestBody.setDetalles(java.util.List.of(new cl.duoc.kiosko.ventas.dto.DetalleVentaRequestDTO(1L, 2, 10000)));
 
         // Creamos lo que el sistema debería devolver (Response)
         VentaResponseDTO responseMock = new VentaResponseDTO();
@@ -81,7 +83,7 @@ class VentaControllerTest {
                         .contentType(MediaType.APPLICATION_JSON) // Decimos que enviamos un JSON
                         .content(jsonRequest)) // Metemos el JSON
                 .andExpect(status().isCreated()) // Esperamos HTTP 201 CREATED
-                .andExpect(jsonPath("$.ventaId").value(2))
+                .andExpect(jsonPath("$.id").value(2)) // el campo del DTO se llama "id"
                 .andExpect(jsonPath("$.total").value(10000));
     }
 
