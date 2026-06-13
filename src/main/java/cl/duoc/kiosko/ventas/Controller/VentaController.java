@@ -7,7 +7,7 @@ import cl.duoc.kiosko.ventas.dto.VentaResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.Link;
 import org.springframework.http.HttpStatus;
@@ -23,12 +23,11 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 @RestController
 @RequestMapping("/v1/ventas")
 @Tag(name="Ventas", description = "Operaciones relacionadas con las ventas")
+@RequiredArgsConstructor // Inyección por constructor (mejor práctica que @Autowired en campos)
 public class VentaController {
-    @Autowired
-    private VentaService ventaService;
+    private final VentaService ventaService;
 
-    @Autowired
-    private VentaModelAssembler assembler;
+    private final VentaModelAssembler assembler;
 
     @PostMapping("")
     @Operation(summary = "Agregar/Crear una venta ", description = "Agrega/guarda una venta (debe tener un detalle minimo debido al modelo de base de datos creado)")

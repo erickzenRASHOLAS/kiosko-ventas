@@ -27,7 +27,7 @@ public class VentaService {
     private final VentaRepository ventaRepository;
 
     private VentaResponseDTO makeToVentaResponseDTO(Venta venta) {
-        log.error("Se Formatea de Venta a DTO");
+        log.info("Se Formatea de Venta a DTO");
         // Convertimos la lista de Entidades DetalleVenta a lista de DetalleVentaResponseDTO
         List<DetalleVentaResponseDTO> detallesDTO = venta.getDetalles().stream()
                 .map(detalle -> new DetalleVentaResponseDTO(
@@ -45,10 +45,9 @@ public class VentaService {
         );
     }
     public VentaResponseDTO saveVenta(VentaRequestDTO dto) {
-        log.error("Se Guarda de Venta a DTO");
+        log.info("Se Guarda de Venta a DTO");
         Venta venta = new Venta();
         venta.setFechaHoraVenta(dto.getFechaHoraVenta());
-        venta.setTotal(dto.getTotal());
 
         if (dto.getDetalles() != null) {
             for (DetalleVentaRequestDTO detDTO : dto.getDetalles()) {
@@ -62,19 +61,29 @@ public class VentaService {
                 venta.getDetalles().add(detalle);
             }
         }
+        // El total lo calcula el SERVIDOR sumando los subtotales,
+        // NO se confía en el total que mande el cliente (podría mandar cualquier cosa)
+        venta.setTotal(calcularTotal(venta));
 
         Venta guardada = ventaRepository.save(venta);
         return makeToVentaResponseDTO(guardada);
     }
 
+    // Suma los subtotales de los detalles para obtener el total real de la venta
+    private int calcularTotal(Venta venta) {
+        return venta.getDetalles().stream()
+                .mapToInt(DetalleVenta::getSubtotal)
+                .sum();
+    }
+
     public List<VentaResponseDTO> listVenta(){
-        log.error("Se Listan todas los Ventas");
+        log.info("Se Listan todas los Ventas");
 
         return ventaRepository.findAll().stream().map(this::makeToVentaResponseDTO).toList();
     }
 
     public VentaResponseDTO findVentaDTO(Long id) {
-        log.error("Se busca la Venta de ID {}", id);
+        log.info("Se busca la Venta de ID {}", id);
         Venta venta = ventaRepository.findById(id).orElse(null);
         //es lo mismo que hacer un if (debo utilizar más esta forma)
         return (venta != null) ? makeToVentaResponseDTO(venta) : /*Despues del ":" es el else*/ null;
@@ -83,12 +92,23 @@ public class VentaService {
 
 
     public VentaResponseDTO updateVenta(Long id, VentaRequestDTO dto) {
-        log.error("Se actualiza la Venta de ID {}", id);
+        log.info("Se actualiza la Venta de ID {}", id);
         Venta ventaAModificar = ventaRepository.findById(id).orElse(null);
         if (ventaAModificar != null) {
-            ventaAModificar.setTotal(dto.getTotal());
             ventaAModificar.setFechaHoraVenta(dto.getFechaHoraVenta());
-            //se añaden solo los atributos que se quieran modificar
+            // Se REEMPLAZAN los detalles por los que vienen en el request
+            // (el clear + orphanRemoval borra los antiguos de la BD)
+            ventaAModificar.getDetalles().clear();
+            for (DetalleVentaRequestDTO detDTO : dto.getDetalles()) {
+                DetalleVenta detalle = new DetalleVenta();
+                detalle.setProductoId(detDTO.getProductoId());
+                detalle.setCantidad(detDTO.getCantidad());
+                detalle.setSubtotal(detDTO.getSubtotal());
+                detalle.setVenta(ventaAModificar);
+                ventaAModificar.getDetalles().add(detalle);
+            }
+            // Igual que en saveVenta: el total lo calcula el servidor, no el cliente
+            ventaAModificar.setTotal(calcularTotal(ventaAModificar));
             Venta actualizada = ventaRepository.save(ventaAModificar);
             return makeToVentaResponseDTO(actualizada);
         }
@@ -96,7 +116,7 @@ public class VentaService {
     }
     /// nulos NO Retornan
     public void deleteVenta(Long id) {
-        log.error("Se elimina la Venta de ID {}", id);
+        log.info("Se elimina la Venta de ID {}", id);
         if (ventaRepository.existsById(id)) {
             ventaRepository.deleteById(id);
         }else{

@@ -13,11 +13,12 @@ public class DetalleVentaRequestDTO {
     //NO VA ID PORQUE EL USUARIO NO PONE ID AL CREARLO
     @NotNull(message = "Debe existir un id producto")
     private Long productoId;
+    //Se usa Integer (no int) para que @NotNull funcione: un int nunca puede ser null, llega como 0
     @NotNull(message = "La cantidad es obligatoria")
     @Min(value = 0, message = "La cantidad no puede ser negativa")
-    private int cantidad;
-    @NotNull
+    private Integer cantidad;
+    @NotNull(message = "El subtotal es obligatorio")
     @Min(value = 0, message = "El subtotal no puede ser negativo")
-    private int subtotal;
+    private Integer subtotal;
 
 }

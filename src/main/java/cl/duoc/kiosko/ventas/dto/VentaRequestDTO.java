@@ -18,9 +18,9 @@ public class VentaRequestDTO {
     //Preguntar al profesor para corregir y ver si estoy bien o no
     @NotNull(message = "la fecha y hora no pueden ser nulas")
     private Date fechaHoraVenta;
-    @NotNull(message = "el total no puede ser nulo")
-    @Min(value = 0,message = "el total no puede ser negativo")
-    private int total;
+    //El total ahora lo CALCULA EL SERVIDOR sumando los subtotales de los detalles,
+    //este campo es opcional y se ignora (se mantiene para no romper clientes que aún lo envíen)
+    private Integer total;
     //Permite que puedan mandar una lista de detalles
     //Empty porque es una lista, blank no funciona
     @NotEmpty(message = "la venta debe tener al menos un detalle/producto")

@@ -6,8 +6,9 @@ import cl.duoc.kiosko.ventas.Repository.DetalleVentaRepository;
 import cl.duoc.kiosko.ventas.Repository.VentaRepository;
 import cl.duoc.kiosko.ventas.dto.DetalleVentaRequestDTO;
 import cl.duoc.kiosko.ventas.dto.DetalleVentaResponseDTO;
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -17,13 +18,22 @@ import java.util.stream.Collectors;
 
 @Service
 @Slf4j
+@Transactional
+@RequiredArgsConstructor // Inyección por constructor (mejor práctica que @Autowired en campos)
 public class DetalleVentaService {
-    @Autowired
-    private DetalleVentaRepository detalleVentaRepository;
-    @Autowired
-    private VentaRepository ventaRepository;
-    @Autowired
-    private WebClient webClient;
+    private final DetalleVentaRepository detalleVentaRepository;
+    private final VentaRepository ventaRepository;
+    private final WebClient webClient;
+
+    // Recalcula el total de la venta como la suma de los subtotales de sus detalles
+    // Se llama cada vez que un detalle cambia para que el total NUNCA quede desactualizado
+    private void recalcularTotalVenta(Venta venta) {
+        int total = venta.getDetalles().stream()
+                .mapToInt(DetalleVenta::getSubtotal)
+                .sum();
+        venta.setTotal(total);
+        ventaRepository.save(venta);
+    }
 
     //CREA lo que ve el cliente
     private DetalleVentaResponseDTO makeToDetalleResponseDTO(DetalleVenta detalle) {
@@ -50,6 +60,9 @@ public class DetalleVentaService {
         detalle.setVenta(venta);
         //no se guarda venta ni id venta
         DetalleVenta guardado = detalleVentaRepository.save(detalle);
+        // Al agregar un detalle nuevo, el total de la venta debe actualizarse
+        // (la lista lazy de la venta se carga recién aquí, así que ya incluye el detalle insertado)
+        recalcularTotalVenta(venta);
         return makeToDetalleResponseDTO(guardado);
     }
 
@@ -90,6 +103,8 @@ public class DetalleVentaService {
             detalleAModificar.setSubtotal(dto.getSubtotal());
             //no se usa venta porque el dueño es el mimso
             DetalleVenta actualizado = detalleVentaRepository.save(detalleAModificar);
+            // Si cambió el subtotal, el total de la venta padre debe reflejarlo
+            recalcularTotalVenta(actualizado.getVenta());
             // Retornamos un DTO de respuesta
             return makeToDetalleResponseDTO(actualizado);
         }
@@ -99,13 +114,16 @@ public class DetalleVentaService {
 
     public void deleteDetalleVenta(Long id) {
         log.info("Se elimina el detalleVenta con ID {}", id);
-        // verifica que exista algo que borrar
-        if (detalleVentaRepository.existsById(id)) {
+        // verifica que exista algo que borrar (si no, excepción → 404)
+        DetalleVenta detalle = detalleVentaRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("No se puede eliminar, El detalle con ID " + id + " no existe."));
 
-            detalleVentaRepository.deleteById(id);
-        }else {
-            throw new java.util.NoSuchElementException("No se puede eliminar, El detalle con ID " + id + " no existe.");
-        }
+        Venta venta = detalle.getVenta();
+        // Se quita de la lista de la venta y orphanRemoval lo borra de la BD
+        // (se compara por ID para no usar equals(), que con la relación bidireccional se cae en bucle)
+        venta.getDetalles().removeIf(d -> d.getDetalleVentaId().equals(id));
+        // Y el total de la venta queda actualizado sin ese subtotal
+        recalcularTotalVenta(venta);
     }
 
 }

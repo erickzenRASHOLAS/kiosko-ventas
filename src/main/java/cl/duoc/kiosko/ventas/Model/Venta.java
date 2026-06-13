@@ -24,9 +24,10 @@ public class Venta {
     @Column(name = "fecha_hora_venta")
     @NotNull(message = "la fecha de venta no puede ser nulo")
     private Date fechaHoraVenta;
+    //Integer (no int) para que @NotNull tenga sentido: un primitivo nunca es null
     @Column(name = "total")
     @NotNull(message =  "el total no puede ser nulo")
-    private int total;
+    private Integer total;
     // Relación OneToMany hacia DetalleVenta con Cascada ALL
     //orphanRemoval sirve para que si eliminamos un detalleVenta de la DB este se elimine "fisicamente"
     //en otras palabras manda una sentencia SQL con el delete

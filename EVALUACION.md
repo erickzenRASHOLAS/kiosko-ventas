@@ -50,11 +50,23 @@ El problema "no puedo implementar Mockito con JUnit 5" **no era Mockito** — er
 
 ---
 
-## Resumen y próximos pasos sugeridos
+## ✅ Correcciones aplicadas (2026-06-12)
 
-El diseño general es sólido. En orden de prioridad:
+Tras la evaluación se aplicaron estas correcciones (tests 6/6 pasando):
 
-1. Handler de `MethodArgumentNotValidException` en `GlobalExceptionHandler` (500 → 400 con detalle de campos). *Cambio chico.*
-2. Calcular `total`/`subtotal` en el servidor (integrar precios desde el microservicio de productos vía `WebClient`).
-3. Implementar JWT + Spring Security (agregar `spring-boot-starter-security` y completar los cascarones de `security/`).
-4. Limpieza del `pom.xml` (scopes de test) y perfiles de configuración (`dev`/`prod`).
+1. **`GlobalExceptionHandler`**: nuevo handler de `MethodArgumentNotValidException` → responde `400` con el detalle campo por campo (antes el catch-all respondía `500`). `MethodArgumentTypeMismatchException` también corregido de `500` → `400`.
+2. **`ExceptionDTO`**: constructor sobrecargado `(HttpStatus, String)` para mensajes armados a mano.
+3. **`VentaService`**: `log.error` → `log.info`; el `total` ahora lo **calcula el servidor** (suma de subtotales) en `saveVenta` y `updateVenta`; `updateVenta` además reemplaza los detalles del request (con `orphanRemoval`) en vez de ignorarlos.
+4. **`DetalleVentaService`**: `@Transactional` + inyección por constructor; al crear/editar/borrar un detalle se **recalcula el total de la venta padre** (antes quedaba desactualizado).
+5. **`WebClientConfig`**: usa el `WebClient.Builder` de Spring (antes lo recibía y lo ignoraba).
+6. **`Integer` en vez de `int`** donde había `@NotNull` (entidades y request DTOs) — sobre un primitivo esa validación no hacía nada. `VentaRequestDTO.total` quedó opcional/ignorado porque ahora lo calcula el servidor.
+7. **Inyección por constructor** en ambos controllers (`@RequiredArgsConstructor`); se eliminó el `VentaService` inyectado y no usado en `DetalleVentaController`.
+8. **`pom.xml`**: `<scope>test</scope>` agregado a `junit-jupiter-api`, `mockito-junit-jupiter` y `spring-test` (se filtraban al classpath de producción).
+9. **`DataFakerConfig`**: `@Profile("!prod")` — sigue sembrando datos en desarrollo, pero no en producción.
+
+## Pendientes (no abordados, son features)
+
+1. Integrar precios desde el microservicio de **productos** vía `WebClient` (el subtotal aún lo manda el cliente; `ProductoDTO` sigue sin usarse).
+2. Implementar **JWT + Spring Security** (agregar `spring-boot-starter-security` y completar los cascarones de `security/`).
+3. Separar configuración en perfiles (`application-dev.properties` / `application-prod.properties`).
+4. `VentasApplicationTests` (contextLoads) sigue requiriendo MySQL corriendo.

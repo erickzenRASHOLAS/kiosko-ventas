@@ -15,6 +15,9 @@ import java.util.concurrent.TimeUnit;
 //DATA FAKER HECHO POR IA
 
 @Configuration
+//Con "!prod" sigue funcionando igual en desarrollo (sin configurar nada),
+//pero NO sembrará datos falsos si la app corre con el perfil prod activo
+@org.springframework.context.annotation.Profile("!prod")
 public class DataFakerConfig {
 
     @Bean

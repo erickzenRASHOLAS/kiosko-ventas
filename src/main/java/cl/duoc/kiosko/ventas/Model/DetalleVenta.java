@@ -29,11 +29,12 @@ public class DetalleVenta {
     @Column(name = "producto_id")
     @NotNull
     private Long productoId;
+    //Integer (no int) para que @NotNull tenga sentido: un primitivo nunca es null
     @Column(name="cantidad")
     @NotNull
-    private int cantidad;
+    private Integer cantidad;
     @Column(name="subtotal")
     @NotNull
-    private int subtotal;
+    private Integer subtotal;
 
 }

@@ -2,13 +2,12 @@ package cl.duoc.kiosko.ventas.Controller;
 
 import cl.duoc.kiosko.ventas.Assembler.DetalleVentaModelAssembler;
 import cl.duoc.kiosko.ventas.Service.DetalleVentaService;
-import cl.duoc.kiosko.ventas.Service.VentaService;
 import cl.duoc.kiosko.ventas.dto.DetalleVentaRequestDTO;
 import cl.duoc.kiosko.ventas.dto.DetalleVentaResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.Link;
 import org.springframework.http.HttpStatus;
@@ -23,15 +22,11 @@ import java.util.NoSuchElementException;
 @RestController
 @RequestMapping("/v1/detalles_ventas")
 @Tag(name="Detalles de Ventas", description = "Operaciones relacionadas con  el detalle de las ventas")
+@RequiredArgsConstructor // Inyección por constructor (mejor práctica que @Autowired en campos)
 public class DetalleVentaController {
-    @Autowired
-    private DetalleVentaService detalleVentaService;
-    //NECESARIO PARA ENCONTRAR LA VENTA
-    @Autowired
-    private VentaService ventaService;
+    private final DetalleVentaService detalleVentaService;
     //necesario para HATEOAS
-    @Autowired
-    private DetalleVentaModelAssembler assembler;
+    private final DetalleVentaModelAssembler assembler;
 
     // La URL POST /api/v1/detalles_ventas/venta/{ventaId}
     //es debido a que es no pueden existir detalles sin ventas
