@@ -19,6 +19,9 @@ import java.util.List;
 @Transactional
 @Slf4j
 @RequiredArgsConstructor
+
+
+
 public class VentaService {
 
     private final VentaRepository ventaRepository;

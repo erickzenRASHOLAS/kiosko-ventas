@@ -1,5 +1,5 @@
 package cl.duoc.kiosko.ventas.Controller;
-
+import cl.duoc.kiosko.ventas.Controller.VentaController;
 import cl.duoc.kiosko.ventas.Model.Venta;
 import cl.duoc.kiosko.ventas.Service.VentaService;
 import cl.duoc.kiosko.ventas.dto.VentaRequestDTO;
