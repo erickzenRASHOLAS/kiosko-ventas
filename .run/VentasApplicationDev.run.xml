@@ -1,0 +1,12 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="VentasApplicationDev" type="Application" factoryName="Application">
+    <envs>
+      <env name="ENV" value="dev" />
+    </envs>
+    <option name="MAIN_CLASS_NAME" value="cl.duoc.kiosko.ventas.VentasApplication" />
+    <module name="ventas" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>
