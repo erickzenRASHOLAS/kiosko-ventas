@@ -1,0 +1,13 @@
+spring:
+  datasource:
+    url: jdbc:${MYSQL_URL}?createDatabaseIfNotExist=true
+    username: ${MYSQLUSER}
+    password: ${MYSQLPASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect

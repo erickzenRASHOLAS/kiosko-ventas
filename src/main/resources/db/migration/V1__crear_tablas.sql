@@ -1,7 +1,6 @@
-
 CREATE TABLE ventas (
                         venta_id BIGINT AUTO_INCREMENT PRIMARY KEY,
-                        fecha_hora_venta DATETIME NOT NULL,
+                        fecha_hora_venta TIMESTAMP NOT NULL,
                         total INT NOT NULL
 );
 
