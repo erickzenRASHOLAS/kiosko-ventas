@@ -5,7 +5,7 @@ server:
 
 spring:
   profiles:
-    active: ${ENV}
+    active: ${ENV:dev}
   application:
     name: ventas
   datasource:
