@@ -6,6 +6,8 @@ import io.swagger.v3.oas.models.servers.Server;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.util.List;
+
 @Configuration
 public class SwaggerConfig {
     @Bean// llama componentes externos (funciona como libreria)
@@ -25,6 +27,7 @@ public class SwaggerConfig {
                 .info(new Info()
                         .title("API 2026 Ventas kiosko")
                         .version("1.0")
-                        .description("Documentación de la API para el microservicio de ventas del kiosko"));
+                        .description("Documentación de la API para el microservicio de ventas del kiosko"))
+                .servers(List.of(productionServer, localServer)); // Agrega ambos servidores
     }
 }
