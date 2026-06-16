@@ -5,13 +5,13 @@ server:
 
 spring:
   profiles:
-    active: ${ENV}
+    active: ${ENV:dev}
   application:
     name: ventas
   datasource:
     url: jdbc:mysql://localhost:3306/kiosko_ventas?createDatabaseIfNotExist=true
     username: root
-    password: caca
+    password:
   jpa:
     hibernate:
       ddl-auto: validate
