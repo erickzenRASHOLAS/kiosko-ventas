@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 @RestController
-@RequestMapping("/v1/detalles_ventas")
+@RequestMapping("/v2/detalles_ventas")
 @Tag(name="Detalles de Ventas", description = "Operaciones relacionadas con  el detalle de las ventas")
 public class DetalleVentaController {
     @Autowired

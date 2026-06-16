@@ -21,7 +21,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
-@RequestMapping("/v1/ventas")
+@RequestMapping("/v2/ventas")
 @Tag(name="Ventas", description = "Operaciones relacionadas con las ventas")
 public class VentaController {
     @Autowired
