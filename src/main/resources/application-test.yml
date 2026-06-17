@@ -1,13 +1,13 @@
 spring:
   datasource:
     url: jdbc:h2:mem:mi_base_datos_test;DB_CLOSE_DELAY=-1
-    username: sa
+    username: root
     password:
     driver-class-name: org.h2.Driver
   jpa:
     show-sql: true
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: none
     database-platform: org.hibernate.dialect.H2Dialect
   h2:
     console:

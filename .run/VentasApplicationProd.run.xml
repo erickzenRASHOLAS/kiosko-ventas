@@ -1,0 +1,15 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="VentasApplicationProd" type="Application" factoryName="Application">
+    <envs>
+      <env name="ENV" value="prod" />
+      <env name="MYSQL_URL" value="mysql://localhost:3306/flyway" />
+      <env name="MYSQLUSER" value="root" />
+      <env name="MYSQLPASSWORD" value="system" />
+    </envs>
+    <option name="MAIN_CLASS_NAME" value="cl.duoc.kiosko.ventas.VentasApplication" />
+    <module name="ventas" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>
