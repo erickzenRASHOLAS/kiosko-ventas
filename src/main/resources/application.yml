@@ -50,6 +50,6 @@ springdoc:
 eureka:
   client:
     service-url:
-      defaultZone: http://localhost:8761/eureka/ # La dirección de tu Eureka Server
+      defaultZone: http://${EUREKA-SERVER}/eureka/ # La dirección de tu Eureka Server
   instance:
     prefer-ip-address: true # Permite que se registren usando la IP, ideal para Docker
