@@ -46,3 +46,10 @@ springdoc:
     enabled: true
     path: /doc/swagger-ui.html
   show-hateoas: false
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/ # La dirección de tu Eureka Server
+  instance:
+    prefer-ip-address: true # Permite que se registren usando la IP, ideal para Docker
