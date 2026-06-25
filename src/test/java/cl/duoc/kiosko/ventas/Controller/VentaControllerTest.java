@@ -13,6 +13,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import cl.duoc.kiosko.ventas.Exception.GlobalExceptionHandler;
 
 import java.util.ArrayList;
 
@@ -21,8 +22,8 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-// 🚀 @WebMvcTest levanta SOLO el controlador, haciendo la prueba súper rápida
-@WebMvcTest(VentaController.class)
+
+@WebMvcTest(controllers = {VentaController.class, GlobalExceptionHandler.class})
 @ActiveProfiles("test")
 class VentaControllerTest {
 
@@ -99,5 +100,16 @@ class VentaControllerTest {
         // 2 & 3. WHEN / ACT & THEN / ASSERT
         mockMvc.perform(delete("/v1/ventas/1")) // Hacemos DELETE a la URL
                 .andExpect(status().isNoContent()); // Esperamos HTTP 204 NO CONTENT (Tal cual lo tienes en el Controller)
+    }
+    @Test
+    void testEliminarVentaId_NoExiste_Devuelve404NotFound() throws Exception {
+        // Configuramos el Mock del servicio para que lance la excepción cuando el controlador intente borrar
+        org.mockito.Mockito.doThrow(new java.util.NoSuchElementException("No existe"))
+                .when(ventaService).deleteVenta(999L);
+
+        // Ejecutamos la petición HTTP DELETE
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete("/v1/ventas/999"))
+                .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.status().isNotFound());
+        // .isNotFound() verifica que responda un código 404 gracias a tu GlobalExceptionHandler
     }
 }

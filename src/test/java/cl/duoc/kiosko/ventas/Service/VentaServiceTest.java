@@ -1,13 +1,16 @@
 package cl.duoc.kiosko.ventas.Service;
 
+import cl.duoc.kiosko.ventas.Model.DetalleVenta;
 import cl.duoc.kiosko.ventas.Model.Venta;
 import cl.duoc.kiosko.ventas.Repository.VentaRepository;
+import cl.duoc.kiosko.ventas.dto.VentaRequestDTO;
 import cl.duoc.kiosko.ventas.dto.VentaResponseDTO;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.context.ActiveProfiles;
 
@@ -99,4 +102,102 @@ class VentaServiceTest {
         verify(ventaRepository, times(1)).existsById(99L);
         verify(ventaRepository, never()).deleteById(anyLong());
     }
+
+    @Test
+    @DisplayName("Debe retornar null cuando busca una venta que no existe")
+    void testFindVentaDTO_NoExiste_RetornaNull() {
+        // Usa directamente when y Optional de java.util
+        when(ventaRepository.findById(999L)).thenReturn(Optional.empty());
+
+        VentaResponseDTO resultado = ventaService.findVentaDTO(999L);
+
+        assertNull(resultado);
+        verify(ventaRepository, times(1)).findById(999L); // Agrega esta verificación
+    }
+
+    @Test
+    void testUpdateVenta_NoExiste_RetornaNull() {
+        org.mockito.Mockito.when(ventaRepository.findById(999L)).thenReturn(java.util.Optional.empty());
+
+        VentaResponseDTO resultado = ventaService.updateVenta(999L, new VentaRequestDTO());
+
+        assertNull(resultado);
+    }
+
+    @Test
+    void testDeleteVenta_NoExiste_LanzaNoSuchElementException() {
+        // Simulamos que la venta NO existe en la base de datos
+        org.mockito.Mockito.when(ventaRepository.existsById(999L)).thenReturn(false);
+
+        // Verificamos que salte tu excepción personalizada del 'else'
+        assertThrows(java.util.NoSuchElementException.class, () -> {
+            ventaService.deleteVenta(999L);
+        });
+    }
+
+    @Test
+    void testSaveVentaExitoso() {
+        // 1. Arrange (Preparar datos con un detalle para obligar a la Lambda a ejecutarse)
+        VentaRequestDTO request = new VentaRequestDTO();
+        request.setTotal(7000);
+
+        // Agregamos un detalle al request para activar el flujo del stream
+        cl.duoc.kiosko.ventas.dto.DetalleVentaRequestDTO detalleReq = new cl.duoc.kiosko.ventas.dto.DetalleVentaRequestDTO();
+        request.setDetalles(java.util.List.of(detalleReq));
+
+        Venta ventaGuardada = new Venta();
+        ventaGuardada.setVentaId(10L);
+        ventaGuardada.setTotal(7000);
+
+        // Agregamos el detalle correspondiente en la entidad simulada
+        cl.duoc.kiosko.ventas.Model.DetalleVenta detalleEntidad = new cl.duoc.kiosko.ventas.Model.DetalleVenta();
+        ventaGuardada.setDetalles(java.util.List.of(detalleEntidad));
+
+        // Simulamos el comportamiento del repositorio
+        when(ventaRepository.save(any(Venta.class))).thenReturn(ventaGuardada);
+
+        // 2. Act
+        VentaResponseDTO response = ventaService.saveVenta(request);
+
+        // 3. Assert
+        assertNotNull(response);
+        assertEquals(10L, response.getId());
+        assertEquals(7000, response.getTotal());
+        verify(ventaRepository, times(1)).save(any(Venta.class));
+    }
+    @Test
+    void testUpdateVentaExitoso() {
+        // 1. Arrange (Preparar)
+        Long id = 5L;
+        VentaRequestDTO requestActualizacion = new VentaRequestDTO();
+        requestActualizacion.setTotal(12000);
+        requestActualizacion.setDetalles(new ArrayList<>());
+
+        // Esta es la venta vieja que está en la base de datos
+        Venta ventaVieja = new Venta();
+        ventaVieja.setVentaId(id);
+        ventaVieja.setTotal(5000);
+
+        // Esta es la venta después de guardar los cambios
+        Venta ventaGuardada = new Venta();
+        ventaGuardada.setVentaId(id);
+        ventaGuardada.setTotal(12000);
+        ventaGuardada.setDetalles(new ArrayList<>());
+
+        // Le decimos al mock que encuentre la vieja, y luego devuelva la nueva al guardar
+        when(ventaRepository.findById(id)).thenReturn(java.util.Optional.of(ventaVieja));
+        when(ventaRepository.save(any(Venta.class))).thenReturn(ventaGuardada);
+
+        // 2. Act (Actuar)
+        VentaResponseDTO response = ventaService.updateVenta(id, requestActualizacion);
+
+        // 3. Assert (Afirmar)
+        assertNotNull(response);
+        assertEquals(12000, response.getTotal(), "El total debió actualizarse a 12000");
+
+        // Verificamos que se buscó y luego se guardó
+        verify(ventaRepository, times(1)).findById(id);
+        verify(ventaRepository, times(1)).save(any(Venta.class));
+    }
+
 }

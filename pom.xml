@@ -221,6 +221,17 @@
 				<groupId>org.jacoco</groupId>
 				<artifactId>jacoco-maven-plugin</artifactId>
 				<version>0.8.12</version>
+
+				<configuration>
+					<excludes>
+						<exclude>cl/duoc/kiosko/ventas/Config/**</exclude>
+						<exclude>cl/duoc/kiosko/ventas/security/**</exclude>
+						<exclude>cl/duoc/kiosko/ventas/Model/**</exclude>
+						<exclude>cl/duoc/kiosko/ventas/Assembler/**</exclude>
+						<exclude>cl/duoc/kiosko/ventas/dto/**</exclude>
+						<exclude>cl/duoc/kiosko/ventas/*Application.class</exclude>
+					</excludes>
+				</configuration>
 				<executions>
 					<execution>
 						<id>prepare-agent</id>
