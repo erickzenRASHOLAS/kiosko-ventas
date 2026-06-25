@@ -20,7 +20,7 @@ public class SwaggerConfig {
 
         // Configuración del servidor de producción con HTTPS (railway)
         Server productionServer = new Server();
-        productionServer.setUrl("https://kiosko-ventas-production.up.railway.app");
+        productionServer.setUrl("https://kiosko-ventas-production.up.railway.app/api");
         productionServer.setDescription("Servidor de Producción en Railway");
 
 
