@@ -4,10 +4,12 @@ import cl.duoc.kiosko.ventas.Assembler.VentaModelAssembler;
 import cl.duoc.kiosko.ventas.Service.VentaService;
 import cl.duoc.kiosko.ventas.dto.VentaRequestDTO;
 import cl.duoc.kiosko.ventas.dto.VentaResponseDTO;
+import cl.duoc.kiosko.ventas.security.JwtService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
@@ -25,6 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(controllers = {VentaController.class, GlobalExceptionHandler.class})
 @ActiveProfiles("test")
+@AutoConfigureMockMvc(addFilters = false)
 class VentaControllerTest {
 
     @Autowired
@@ -35,6 +38,9 @@ class VentaControllerTest {
 
     @MockitoBean
     private VentaModelAssembler assembler; // Burlamos HATEOAS
+
+    @MockitoBean
+    private JwtService jwtService;
 
     // Se instancia directo porque el slice @WebMvcTest de Spring Boot 4 no expone el bean ObjectMapper
     private final ObjectMapper objectMapper = new ObjectMapper(); // Transforma objetos Java a JSON

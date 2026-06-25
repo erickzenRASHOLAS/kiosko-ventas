@@ -53,3 +53,10 @@ eureka:
       defaultZone: http://${EUREKA-SERVER}/eureka/ # La dirección de tu Eureka Server
   instance:
     prefer-ip-address: true # Permite que se registren usando la IP, ideal para Docker
+
+application:
+  security:
+    jwt:
+      secret-key: ClaveSecreta123456789ClaveSecreta123456789ClaveSecreta123456789
+      # Tiempo de vida del token (86400000 ms = 1 día)
+      expiration: 86400000

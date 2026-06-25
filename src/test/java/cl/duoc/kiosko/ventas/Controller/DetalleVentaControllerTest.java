@@ -4,14 +4,17 @@ import cl.duoc.kiosko.ventas.dto.DetalleVentaRequestDTO;
 import cl.duoc.kiosko.ventas.dto.DetalleVentaResponseDTO;
 import cl.duoc.kiosko.ventas.Service.DetalleVentaService;
 import cl.duoc.kiosko.ventas.Assembler.DetalleVentaModelAssembler; // <-- ¡Importante!
+import cl.duoc.kiosko.ventas.security.JwtService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.util.List;
 
@@ -22,14 +25,17 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
+@AutoConfigureMockMvc(addFilters = false)
 class DetalleVentaControllerTest {
 
     @Mock
     private DetalleVentaService detalleVentaService;
 
-    // 1️⃣ ¡AQUÍ ESTÁ LA MAGIA! Le inyectamos el Assembler de mentira para que no dé NullPointer
     @Mock
     private DetalleVentaModelAssembler assembler;
+
+    @MockitoBean
+    private JwtService jwtService;
 
     @InjectMocks
     private DetalleVentaController detalleVentaController;
